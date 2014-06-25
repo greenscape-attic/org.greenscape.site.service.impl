@@ -6,6 +6,8 @@ import java.util.Map;
 
 import org.greenscape.core.service.Service;
 import org.greenscape.persistence.DocumentModel;
+import org.greenscape.site.Page;
+import org.greenscape.site.PageModel;
 import org.greenscape.site.Site;
 import org.greenscape.site.SiteModel;
 import org.greenscape.site.service.SiteService;
@@ -30,7 +32,8 @@ public class SiteServiceImpl implements SiteService {
 	}
 
 	@Override
-	public <M extends DocumentModel> List<M> find(Class<M> clazz, Map<String, List<String>> properties) {
+	public <M extends DocumentModel> List<M> find(Class<? extends DocumentModel> clazz,
+			Map<String, List<String>> properties) {
 		return service.find(clazz, properties);
 	}
 
@@ -78,6 +81,17 @@ public class SiteServiceImpl implements SiteService {
 	@Override
 	public void deleteBySiteId(String siteId) {
 		service.delete(Site.class, siteId);
+	}
+
+	@Override
+	public void deletePage(String siteId, String pageId) {
+		// allow delete if no of pages > 1
+		List<Page> pages = service.find(Page.class, PageModel.SITE_ID, siteId);
+		if (pages != null && pages.size() > 1) {
+			service.delete(Page.class, pageId);
+		} else {
+			throw new RuntimeException("Page deletion not allowed as site has single page");
+		}
 	}
 
 	@Reference

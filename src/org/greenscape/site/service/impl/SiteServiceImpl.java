@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.greenscape.core.model.Page;
+import org.greenscape.core.model.PageModel;
+import org.greenscape.core.model.Site;
+import org.greenscape.core.model.SiteModel;
 import org.greenscape.core.service.Service;
 import org.greenscape.persistence.DocumentModel;
-import org.greenscape.site.Page;
-import org.greenscape.site.PageModel;
-import org.greenscape.site.Site;
-import org.greenscape.site.SiteModel;
 import org.greenscape.site.service.SiteService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

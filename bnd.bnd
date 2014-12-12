@@ -1,9 +1,11 @@
 Private-Package: org.greenscape.site.service.impl
--buildpath: osgi.core,\
+-buildpath:  \
+	osgi.core,\
 	osgi.cmpn,\
 	junit.osgi,\
 	org.eclipse.osgi.services,\
 	org.greenscape.core;version=latest,\
-	org.greenscape.site.service;version=latest
+	org.greenscape.site.service;version=latest,\
+	org.apache.shiro.core
 -dsannotations: *
 Bundle-Version: 0.1.0

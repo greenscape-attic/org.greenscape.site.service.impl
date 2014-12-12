@@ -4,12 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authz.AuthorizationException;
+import org.apache.shiro.subject.Subject;
 import org.greenscape.core.model.Page;
 import org.greenscape.core.model.PageModel;
-import org.greenscape.core.model.Site;
 import org.greenscape.core.model.SiteModel;
 import org.greenscape.core.service.Service;
-import org.greenscape.persistence.DocumentModel;
 import org.greenscape.site.service.SiteService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -17,78 +18,76 @@ import org.osgi.service.component.annotations.Reference;
 @Component
 public class SiteServiceImpl implements SiteService {
 
+	private final static String MODEL_NAME = "site";
 	private Service service;
 
-	// private SitePersistence sitePersistence;
-
 	@Override
-	public <M extends DocumentModel> List<M> find(Class<? extends DocumentModel> clazz) {
-		return service.find(clazz);
+	public List<SiteModel> find() {
+		return service.find(MODEL_NAME);
 	}
 
 	@Override
-	public <M extends DocumentModel> M find(Class<? extends DocumentModel> clazz, String id) {
-		return service.find(clazz, id);
+	public SiteModel find(String id) {
+		return service.findByModelId(MODEL_NAME, id);
 	}
 
 	@Override
-	public <M extends DocumentModel> List<M> find(Class<? extends DocumentModel> clazz,
-			Map<String, List<String>> properties) {
-		return service.find(clazz, properties);
+	public List<SiteModel> find(Map<String, List<String>> properties) {
+		return service.find(MODEL_NAME, properties);
 	}
 
 	@Override
-	public <M extends DocumentModel> List<M> find(Class<? extends DocumentModel> clazz, String propertyName,
-			Object value) {
-		return service.find(clazz, propertyName, value);
+	public List<SiteModel> find(String propertyName, Object value) {
+		return service.find(MODEL_NAME, propertyName, value);
 	}
 
 	@Override
-	public Site findBySiteId(String siteId) {
-		return service.find(Site.class, siteId);
+	public Collection<SiteModel> findByOrganizationId(String orgId) {
+		return service.find(MODEL_NAME, SiteModel.ORGANIZATION_ID, orgId);
 	}
 
 	@Override
-	public Collection<Site> findByOrganizationId(String orgId) {
-		return service.find(Site.class, SiteModel.ORGANIZATION_ID, orgId);
+	public SiteModel save(SiteModel model) {
+		Subject subject = SecurityUtils.getSubject();
+		if (!subject.isPermitted("site:add:" + model.getModelId())) {
+			throw new AuthorizationException();
+		}
+		return service.save(MODEL_NAME, model);
 	}
 
 	@Override
-	public <M extends DocumentModel> M save(M model) {
-		return service.save(model);
+	public SiteModel update(SiteModel model) {
+		Subject subject = SecurityUtils.getSubject();
+		if (!subject.isPermitted("site:edit:" + model.getModelId())) {
+			throw new AuthorizationException();
+		}
+		return service.update(MODEL_NAME, model);
 	}
 
 	@Override
-	public <M extends DocumentModel> M update(M model) {
-		return service.update(model);
+	public void delete() {
+		Subject subject = SecurityUtils.getSubject();
+		if (!subject.isPermitted("site:delete")) {
+			throw new AuthorizationException();
+		}
+		service.delete(MODEL_NAME);
 	}
 
 	@Override
-	public Site save(Site site) {
-		return service.save(site);
-	}
-
-	@Override
-	public void delete(Class<? extends DocumentModel> clazz) {
-		service.delete(clazz);
-	}
-
-	@Override
-	public void delete(Class<? extends DocumentModel> clazz, String id) {
-		service.delete(clazz, id);
-	}
-
-	@Override
-	public void deleteBySiteId(String siteId) {
-		service.delete(Site.class, siteId);
+	public void delete(String siteId) {
+		Subject subject = SecurityUtils.getSubject();
+		if (!subject.isPermitted("site:delete:" + siteId)) {
+			throw new AuthorizationException();
+		}
+		service.delete(MODEL_NAME, siteId);
 	}
 
 	@Override
 	public void deletePage(String siteId, String pageId) {
 		// allow delete if no of pages > 1
-		List<Page> pages = service.find(Page.class, PageModel.SITE_ID, siteId);
+		List<Page> pages = service.find("page", PageModel.SITE_ID, siteId);
 		if (pages != null && pages.size() > 1) {
-			service.delete(Page.class, pageId);
+			service.delete("page", pageId);
 		} else {
 			throw new RuntimeException("Page deletion not allowed as site has single page");
 		}
@@ -102,13 +101,4 @@ public class SiteServiceImpl implements SiteService {
 	public void unsetService(Service service) {
 		this.service = null;
 	}
-
-	// @Reference
-	// public void setSitePersistence(SitePersistence sitePersistence) {
-	// this.sitePersistence = sitePersistence;
-	// }
-	//
-	// public void unsetSitePersistence(SitePersistence sitePersistence) {
-	// this.sitePersistence = null;
-	// }
 }

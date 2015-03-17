@@ -6,7 +6,8 @@ Private-Package: org.greenscape.site.service.impl
 	org.eclipse.osgi.services,\
 	org.greenscape.core;version=latest,\
 	org.greenscape.site.service;version=latest,\
-	org.apache.shiro.core
+	org.apache.shiro.core,\
+	org.greenscape.persistence;version=latest
 -dsannotations: *
 Bundle-Version: 0.1.0
 javac.source=1.8
